@@ -1,0 +1,93 @@
+stages:
+  - cluster-setup
+  - infra-setup
+  - stateful-apps-deploy
+  - chaos-test
+  - cleanup
+gke-cluster:
+  image: atulabhi/kops:v8
+  stage: cluster-setup
+  script: 
+    - chmod 775 ./script/gke
+    - ./script/gke
+  artifacts:
+    when: always
+    paths:
+      - .kube/
+
+openebs_gke_deploy:
+  image: atulabhi/kops:v8
+  stage: infra-setup
+  dependencies:
+    - gke-cluster
+  script:
+    - echo "Setting up infrastructure"
+    - chmod 775 ./script/infra-setup
+    - ./script/infra-setup
+  artifacts:
+    paths:
+      - .kube-openebs/
+
+percona-jiva:
+  stage: stateful-apps-deploy
+  image: atulabhi/kops:v8
+  script:
+    - chmod 775 ./script/percona-app-deploy
+    - ./script/percona-app-deploy
+  dependencies:
+    - openebs_gke_deploy
+
+cassandra-jiva:
+  stage: stateful-apps-deploy
+  image: atulabhi/kops:v8
+  script:
+    - chmod 775 ./script/cassandra-app-deploy
+    - ./script/cassandra-app-deploy
+  dependencies:
+    - openebs_gke_deploy
+
+mongo-jiva:
+  stage: stateful-apps-deploy
+  image: atulabhi/kops:v8
+  script:
+    - chmod 775 ./script/mongo-app-deploy
+    - ./script/mongo-app-deploy
+  dependencies:
+    - openebs_gke_deploy
+
+jenkins-jiva:
+  stage: stateful-apps-deploy
+  image: atulabhi/kops:v8
+  script:
+    - chmod 775 ./script/jenkins-app-deploy
+    - ./script/jenkins-app-deploy
+  dependencies:
+    - openebs_gke_deploy
+
+postgres-jiva:
+  stage: stateful-apps-deploy
+  image: atulabhi/kops:v8
+  script:
+    - chmod 775 ./script/postgres-app-deploy
+    - ./script/postgres-app-deploy
+  dependencies:
+    - openebs_gke_deploy
+     
+Litmus-Chaos:
+  stage: chaos-test
+  image: atulabhi/kops:v8
+  script:
+    - chmod 775 ./script/app-chaos
+    - ./script/app-chaos
+  dependencies:
+    - openebs_gke_deploy
+
+cleanup-gcp:
+  image: atulabhi/kops:v8
+  dependencies:
+    - gke-cluster
+  stage: cleanup
+  script: 
+    - chmod 775 ./script/gke-cleanup
+    - ./script/gke-cleanup
+  when: always

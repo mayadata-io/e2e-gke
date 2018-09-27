@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -e
+
+echo $SDK_TOKEN > key.json
+gcloud auth activate-service-account --key-file=key.json
+gcloud config set project openebs-ci
+export GOOGLE_APPLICATION_CREDENTIALS="/openebs/e2e-gke/key.json"
+echo "cleanup"
+mkdir ~/logs
+cp .kube/clusters ~/logs
+git clone https://github.com/openebs/litmus.git 
+cd litmus/
+git checkout gke-k8s
+cd k8s/gcp/k8s-installer/
+echo "cleanup"
+ansible-playbook delete-gke-cluster.yml
