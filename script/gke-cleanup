@@ -10,8 +10,6 @@ echo "cleanup"
 mkdir ~/logs
 cp .kube/clusters ~/logs
 git clone https://github.com/openebs/litmus.git 
-cd litmus/
-git checkout gke-k8s
-cd k8s/gcp/k8s-installer/
+cd litmus/k8s/gke/k8s-installer/
 echo "cleanup"
 ansible-playbook delete-gke-cluster.yml
