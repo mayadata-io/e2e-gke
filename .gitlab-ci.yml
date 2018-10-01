@@ -82,7 +82,7 @@ Litmus-Chaos:
   dependencies:
     - openebs_gke_deploy
 
-cleanup-gcp:
+cleanup-gke:
   image: atulabhi/kops:v9
   dependencies:
     - gke-cluster
