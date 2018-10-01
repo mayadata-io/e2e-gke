@@ -5,6 +5,8 @@ echo $SDK_TOKEN > key.json
 gcloud auth activate-service-account --key-file=key.json
 gcloud config set project openebs-ci
 export GOOGLE_APPLICATION_CREDENTIALS="/openebs/e2e-gke/key.json"
+export GCP_SERVICE_ACCOUNT_FILE="/openebs/e2e-gke/key.json"
+export GKEUSER=`echo $GKE_USER`
 
 # git clone https://github.com/atulabhi/litmus.git
 
@@ -13,10 +15,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="/openebs/e2e-gke/key.json"
 # git checkout v0.7-RC1
 
 git clone https://github.com/openebs/litmus.git
-cd litmus/
-git checkout gke-k8s
-
-cd k8s/gke/k8s-installer/
+cd litmus/k8s/gke/k8s-installer/
 
 echo "creating cluster"
 

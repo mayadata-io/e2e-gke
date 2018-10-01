@@ -5,7 +5,7 @@ stages:
   - chaos-test
   - cleanup
 gke-cluster:
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   stage: cluster-setup
   script: 
     - chmod 775 ./script/gke
@@ -16,7 +16,7 @@ gke-cluster:
       - .kube/
 
 openebs_gke_deploy:
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   stage: infra-setup
   dependencies:
     - gke-cluster
@@ -30,7 +30,7 @@ openebs_gke_deploy:
 
 percona-jiva:
   stage: stateful-apps-deploy
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   script:
     - chmod 775 ./script/percona-app-deploy
     - ./script/percona-app-deploy
@@ -39,7 +39,7 @@ percona-jiva:
 
 cassandra-jiva:
   stage: stateful-apps-deploy
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   script:
     - chmod 775 ./script/cassandra-app-deploy
     - ./script/cassandra-app-deploy
@@ -48,7 +48,7 @@ cassandra-jiva:
 
 mongo-jiva:
   stage: stateful-apps-deploy
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   script:
     - chmod 775 ./script/mongo-app-deploy
     - ./script/mongo-app-deploy
@@ -57,7 +57,7 @@ mongo-jiva:
 
 jenkins-jiva:
   stage: stateful-apps-deploy
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   script:
     - chmod 775 ./script/jenkins-app-deploy
     - ./script/jenkins-app-deploy
@@ -66,7 +66,7 @@ jenkins-jiva:
 
 postgres-jiva:
   stage: stateful-apps-deploy
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   script:
     - chmod 775 ./script/postgres-app-deploy
     - ./script/postgres-app-deploy
@@ -75,7 +75,7 @@ postgres-jiva:
      
 Litmus-Chaos:
   stage: chaos-test
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   script:
     - chmod 775 ./script/app-chaos
     - ./script/app-chaos
@@ -83,7 +83,7 @@ Litmus-Chaos:
     - openebs_gke_deploy
 
 cleanup-gcp:
-  image: atulabhi/kops:v8
+  image: atulabhi/kops:v9
   dependencies:
     - gke-cluster
   stage: cleanup
