@@ -8,8 +8,8 @@ set -x
 ## TODO: Ideally, run_metadata should be passed as gitlab runner (CI runtime) ENV
 run_metadata=""
 
-## https://github.com/openebs/litmus/blob/master/apps/percona/chaos/openebs_volume_replica_failure/test_vars.yml
-test_name="openebs-volume-replica-failure" 
+## https://github.com/openebs/litmus/blob/master/apps/percona/workload/test_vars.yml 
+test_name="percona-loadgen" 
 
 if [[ -n "$run_metadata" ]]; then
   test_name="$test_name-$run_metadata"
@@ -39,7 +39,9 @@ printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "%"
 ## DEPENDENCIES  ##
 ###################
 
-## Derive the kubeconfig of the GCP cluster into the gitlab job runner pod
+
+## Derive the kubeconfig of the GKE cluster into the gitlab job runner pod
+## "gke-openebs" is a shared path for the gitlab runner passed as artifact by gitlab
 
 echo "Setting up test dependencies.."
 
@@ -48,11 +50,13 @@ cp .kube-openebs/config ~/.kube/config
 mkdir ~/logs
 cp .kube-openebs/clusters ~/logs
 
-
 ## Clone the litmus repo, checkout the e2e branch, navigate to litmus root 
 
-git clone https://github.com/atulabhi/litmus.git
-cd litmus; git checkout v0.7-RC1
+#git clone https://github.com/atulabhi/litmus.git
+#cd litmus; git checkout v0.7-RC1
+
+git clone https://github.com/openebs/litmus.git
+cd litmus 
 
 task_delimiter;
 
@@ -69,11 +73,11 @@ task_delimiter;
 
 echo "Running the litmus test.."
 
-## Create the litmus job for percona app chaos test: openebs-volume-replica-failure
+## Create the litmus job for percona-jiva app loadgen
 
-jobNameCmd="kubectl get jobs -n litmus --no-headers -o jsonpath='{.items[?(@.metadata.labels.name==\"openebs-volume-replica-failure\")].metadata.name}'"
+jobNameCmd="kubectl get jobs -n litmus --no-headers -o jsonpath='{.items[?(@.metadata.labels.loadgen==\"percona-loadjob\")].metadata.name}'"
 
-job_deploy_out=$(kubectl create -f apps/percona/chaos/openebs_volume_replica_failure/run_litmus_test.yml) && \
+job_deploy_out=$(kubectl create -f apps/percona/workload/run_litmus_test.yml) && \
 job_name=$(eval $jobNameCmd); retcode=$?
 error_handler $retcode msg="Unable to run litmusbook, exiting" action="exit"
 
@@ -111,6 +115,9 @@ task_delimiter;
 
 echo "Dumping state of cluster post job run"; echo ""
 kubectl get pods --all-namespaces
+kubectl get pvc --all-namespaces
+kubectl get sc
+
 task_delimiter; 
 
 ## Check the test status & result from the litmus result custom resource

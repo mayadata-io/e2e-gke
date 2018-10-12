@@ -6,10 +6,10 @@ set -x
 #################
 
 ## TODO: Ideally, run_metadata should be passed as gitlab runner (CI runtime) ENV
-run_metadata=""
+run_metadata="cstor"
 
-## https://github
-test_name="jenkins-deployment" 
+## https://github.com/openebs/litmus/blob/master/apps/mongodb/deployers/test_vars.yml
+test_name="mongodb-deployment" 
 
 if [[ -n "$run_metadata" ]]; then
   test_name="$test_name-$run_metadata"
@@ -39,10 +39,12 @@ printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "%"
 ## DEPENDENCIES  ##
 ###################
 
-## Derive the kubeconfig of the GCP cluster into the gitlab job runner pod
+
+## Derive the kubeconfig of the GKE cluster into the gitlab job runner pod
+## "gke-openebs" is a shared path for the gitlab runner passed as artifact by gitlab
 
 echo "Setting up test dependencies.."
- 
+
 mkdir ~/.kube
 cp .kube-openebs/config ~/.kube/config
 mkdir ~/logs
@@ -50,8 +52,11 @@ cp .kube-openebs/clusters ~/logs
 
 ## Clone the litmus repo, checkout the e2e branch, navigate to litmus root 
 
-git clone https://github.com/atulabhi/litmus.git
-cd litmus; git checkout v0.7-RC1
+#git clone https://github.com/atulabhi/litmus.git
+#cd litmus; git checkout v0.7-RC1
+
+git clone https://github.com/openebs/litmus.git
+cd litmus
 
 task_delimiter;
 
@@ -59,8 +64,29 @@ task_delimiter;
 ## LITMUS PRECONDITIONING ##
 ############################
 
-## TODO: Add logic to replace job ENV (SC, PVC, LABEL, NS) based on run instance intent 
+## TODO: Better way/logic to replace job ENV (SC, PVC, LABEL, NS) based on run instance intent (CLI) 
 ## TODO: Add logic to add ENV for run_instance_metadata/RunID
+
+: << EOF
+  ----------------------------------------------------------------------------------------
+ | specAttribute        | kind	   | jiva       		| cStor-sparse  	  |
+  ----------------------------------------------------------------------------------------
+ | litmusJobLabel       | jobSpec  | mongodb-deployment-litmus  | mongodb-deployment-cstor|     
+ | providerStorageClass | env 	   | openebs-mongodb     	| openebs-cstor-sparse    |
+ | appNamespace         | env	   | app-mongo-ns             	| mongocstor              |
+ | runID		| env(add) | 	-			| cstor                   |
+  ----------------------------------------------------------------------------------------
+EOF
+
+cp apps/mongodb/deployers/run_litmus_test.yml run_cstor_litmus_test.yml
+sed -i -e 's/app: mongodb-deployment-litmus/app: mongodb-deployment-cstor/g' \
+-e 's/value: openebs-mongodb/value: openebs-cstor-sparse/g' \
+-e 's/value: app-mongo-ns/value: mongocstor/g' run_cstor_litmus_test.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_metadata"'\
+' run_cstor_litmus_test.yml
 
 #################
 ## RUNNER MAIN ##
@@ -68,11 +94,11 @@ task_delimiter;
 
 echo "Running the litmus test.."
 
-## Create the litmus job for jenkins app deploy
+## Create the litmus job for mongo app deploy with cstor storage class
 
-jobNameCmd="kubectl get jobs -n litmus --no-headers -o jsonpath='{.items[?(@.metadata.labels.app==\"jenkins-deployment-litmus\")].metadata.name}'"
+jobNameCmd="kubectl get jobs -n litmus --no-headers -o jsonpath='{.items[?(@.metadata.labels.app==\"mongodb-deployment-cstor\")].metadata.name}'"
 
-job_deploy_out=$(kubectl create -f apps/jenkins/deployers/run_litmus_test.yml) && \
+job_deploy_out=$(kubectl create -f run_cstor_litmus_test.yml) && \
 job_name=$(eval $jobNameCmd); retcode=$?
 error_handler $retcode msg="Unable to run litmusbook, exiting" action="exit"
 
@@ -110,6 +136,9 @@ task_delimiter;
 
 echo "Dumping state of cluster post job run"; echo ""
 kubectl get pods --all-namespaces
+kubectl get pvc --all-namespaces
+kubectl get sc
+
 task_delimiter; 
 
 ## Check the test status & result from the litmus result custom resource

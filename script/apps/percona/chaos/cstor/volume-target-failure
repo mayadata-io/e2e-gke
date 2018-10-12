@@ -6,10 +6,10 @@ set -x
 #################
 
 ## TODO: Ideally, run_metadata should be passed as gitlab runner (CI runtime) ENV
-run_metadata=""
+run_metadata="cstor"
 
-## https://github.com/openebs/litmus/blob/master/apps/cassandra/deployers/test_vars.yml
-test_name="cassandra-deployment" 
+## https://github.com/openebs/litmus/blob/master/apps/percona/chaos/openebs_target_failure/test_vars.yml
+test_name="openebs-target-failure" 
 
 if [[ -n "$run_metadata" ]]; then
   test_name="$test_name-$run_metadata"
@@ -40,7 +40,8 @@ printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "%"
 ###################
 
 
-## Derive the kubeconfig of the GCP cluster into the gitlab job runner pod
+## Derive the kubeconfig of the GKE cluster into the gitlab job runner pod
+## "gke-openebs" is a shared path for the gitlab runner passed as artifact by gitlab
 
 echo "Setting up test dependencies.."
 
@@ -51,8 +52,11 @@ cp .kube-openebs/clusters ~/logs
 
 ## Clone the litmus repo, checkout the e2e branch, navigate to litmus root 
 
-git clone https://github.com/atulabhi/litmus.git
-cd litmus; git checkout v0.7-RC1
+#git clone https://github.com/atulabhi/litmus.git
+#cd litmus; git checkout v0.7-RC1
+
+git clone https://github.com/openebs/litmus.git
+cd litmus
 
 task_delimiter;
 
@@ -63,20 +67,38 @@ task_delimiter;
 ## TODO: Add logic to replace job ENV (SC, PVC, LABEL, NS) based on run instance intent 
 ## TODO: Add logic to add ENV for run_instance_metadata/RunID
 
+: << EOF
+  ----------------------------------------------------------------------------------------
+ | specAttribute        | kind     | jiva                   | cStor-sparse                 |
+  ---------------------------------------------------------------------------------------- |
+ | litmusJobLabel       | jobSpec  | openebs-target-failure | openebs-target-failure-cstor |
+ | appNamespace         | env      | app-percona-ns         | percona-cstor                |
+ | runID                | env(add) |    -                   | cstor 		           | 
+  ----------------------------------------------------------------------------------------
+EOF
+
+cp apps/percona/chaos/openebs_target_failure/run_litmus_test.yml run_cstor_litmus_test.yml
+sed -i -e 's/name: openebs-target-failure/name: openebs-target-failure-cstor/g' \
+-e 's/value: app-percona-ns/value: percona-cstor/g' run_cstor_litmus_test.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_metadata"'\
+' run_cstor_litmus_test.yml
+
 #################
 ## RUNNER MAIN ##
 #################
 
 echo "Running the litmus test.."
 
-## Create the litmus job for cassandra app deploy
+## Create the litmus job for percona app chaos test: openebs-target-failure
 
-jobNameCmd="kubectl get jobs -n litmus --no-headers -o jsonpath='{.items[?(@.metadata.labels.app==\"cassandra-deployment-litmus\")].metadata.name}'"
+jobNameCmd="kubectl get jobs -n litmus --no-headers -o jsonpath='{.items[?(@.metadata.labels.name==\"openebs-target-failure-cstor\")].metadata.name}'"
 
-job_deploy_out=$(kubectl create -f apps/cassandra/deployers/run_litmus_test.yml) && \
+job_deploy_out=$(kubectl create -f run_cstor_litmus_test.yml) && \
 job_name=$(eval $jobNameCmd); retcode=$?
 error_handler $retcode msg="Unable to run litmusbook, exiting" action="exit"
-
 
 ## Obtain the litmus pod name 
 
@@ -112,6 +134,9 @@ task_delimiter;
 
 echo "Dumping state of cluster post job run"; echo ""
 kubectl get pods --all-namespaces
+kubectl get pvc --all-namespaces
+kubectl get sc
+
 task_delimiter; 
 
 ## Check the test status & result from the litmus result custom resource
