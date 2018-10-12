@@ -40,7 +40,8 @@ printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' "%"
 ###################
 
 
-## Derive the kubeconfig of the GCP cluster into the gitlab job runner pod
+## Derive the kubeconfig of the GKE cluster into the gitlab job runner pod
+## "gke-openebs" is a shared path for the gitlab runner passed as artifact by gitlab
 
 echo "Setting up test dependencies.."
 
@@ -51,8 +52,11 @@ cp .kube-openebs/clusters ~/logs
 
 ## Clone the litmus repo, checkout the e2e branch, navigate to litmus root 
 
-git clone https://github.com/atulabhi/litmus.git
-cd litmus; git checkout v0.7-RC1
+#git clone https://github.com/atulabhi/litmus.git
+#cd litmus; git checkout v0.7-RC1
+
+git clone https://github.com/openebs/litmus.git
+cd litmus
 
 task_delimiter;
 
@@ -112,6 +116,9 @@ task_delimiter;
 
 echo "Dumping state of cluster post job run"; echo ""
 kubectl get pods --all-namespaces
+kubectl get pvc --all-namespaces
+kubectl get sc
+
 task_delimiter; 
 
 ## Check the test status & result from the litmus result custom resource
