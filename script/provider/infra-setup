@@ -18,7 +18,6 @@ export OPENEBS_IO_JIVA_REPLICA_IMAGE=$(eval python env_exporter.py -o jreplica -
 export MAYA_APISERVER_IMAGE=$(eval python env_exporter.py -o mapi -fp ../baseline/baseline)
 ##exporting maya-volume-exporter as env##
 export OPENEBS_IO_VOLUME_MONITOR_IMAGE=$(eval python env_exporter.py -o iovolume -fp ../baseline/baseline)
-
 cd 
 
 
