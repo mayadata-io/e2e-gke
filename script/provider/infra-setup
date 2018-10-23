@@ -65,6 +65,7 @@ mkdir ~/.kube
 cp  .kube/config .kube-openebs/config
 cp  .kube/config ~/.kube/config
 cat /openebs/e2e-gke/.kube/clusters > .kube-openebs/clusters
+sudo -H pip install pyyaml --upgrade
 
 for i in efk-vars.yml efk.yml get_url.yml; do
   wget https://raw.githubusercontent.com/openebs/e2e-infrastructure/master/production/efk-client/playbook/$i
