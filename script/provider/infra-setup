@@ -7,6 +7,7 @@ set -ex
 
 ## TODO: Ideally, run_metadata should be passed as gitlab runner (CI runtime) ENV
 run_metadata=""
+present_dir=$(pwd)
 #clone e2e-infrastructre to get the latest commits and run env-exporter script from env
 git clone https://github.com/openebs/e2e-infrastructure.git
 cd e2e-infrastructure/env
@@ -18,7 +19,7 @@ export OPENEBS_IO_JIVA_REPLICA_IMAGE=$(eval python env_exporter.py -o jreplica -
 export MAYA_APISERVER_IMAGE=$(eval python env_exporter.py -o mapi -fp ../baseline/baseline)
 ##exporting maya-volume-exporter as env##
 export OPENEBS_IO_VOLUME_MONITOR_IMAGE=$(eval python env_exporter.py -o iovolume -fp ../baseline/baseline)
-cd
+cd $present_dir
 
 
 ## https://github.com/openebs/litmus/blob/master/apps/percona/deployers/test_vars.yml
@@ -64,6 +65,7 @@ mkdir ~/.kube
 cp  .kube/config .kube-openebs/config
 cp  .kube/config ~/.kube/config
 cat /openebs/e2e-gke/.kube/clusters > .kube-openebs/clusters
+sudo -H pip install pyyaml --upgrade
 
 for i in efk-vars.yml efk.yml get_url.yml; do
   wget https://raw.githubusercontent.com/openebs/e2e-infrastructure/master/production/efk-client/playbook/$i
@@ -91,11 +93,11 @@ task_delimiter;
 
 #update openebs litmus job
 wget https://raw.githubusercontent.com/openebs/e2e-infrastructure/master/env-update/env.py # script to update openebs_setup.yaml
-python env.py -f providers/openebs/installers/operator/master/litmusbook/openebs_setup.yaml
+python3 env.py -f providers/openebs/installers/operator/master/litmusbook/openebs_setup.yaml
 
 echo "updated yaml"
 cat providers/openebs/installers/operator/master/litmusbook/openebs_setup.yaml
-cd ../../
+
 
 
 #################
