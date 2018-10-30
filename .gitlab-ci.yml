@@ -163,6 +163,11 @@ snapshot-clone-creation-{percona-jiva}:
   script:
    - ./script/apps/percona/functional/jiva/k8s-snapshot-clone
 
+volume-memory-consumption-{memleak-jiva}:
+  extends: .func_test_template
+  script:
+   - ./script/apps/memleak/tests/jiva/memory-consumption
+
 ## Define job template for chaos jobs 
 
 .chaos_test_template:
