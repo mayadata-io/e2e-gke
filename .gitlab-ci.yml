@@ -107,6 +107,12 @@ jenkins-jiva-run/load/check:
   script: 
    - ./script/apps/jenkins/deployer/jenkins-app-deploy-jiva
 
+# JENKINS-CSTOR
+jenkins-cstor-run/load/check:
+  extends: .app_deploy_template
+  script:
+   - ./script/apps/jenkins/deployer/jenkins-app-deploy-cstor
+
 # PERCONA-CSTOR
 percona-cstor-run/load/check 0:2:
   extends: .app_deploy_template
@@ -166,6 +172,7 @@ snapshot-clone-creation-{percona-jiva}:
 volume-memory-consumption-{memcheck-jiva}:
   extends: .func_test_template
   script:
+   - chmod 775 ./script/apps/memleak/tests/jivs/memory-consumption
    - ./script/apps/memleak/tests/jiva/memory-consumption
 
 ## Define job template for chaos jobs 
@@ -182,6 +189,11 @@ repl-kill-{percona-jiva}:
   extends: .chaos_test_template #dependencies: percona-jiva
   script:
    - ./script/apps/percona/chaos/jiva/volume-replica-failure
+
+app-kill-{jenkins-cstor}:
+  extends: .chaos_test_template #dependencies: jenkins-cstor
+  script:
+   - ./script/apps/jenkins/chaos/cstor/application-pod-failure
 
 ctrl-kill-{mongo-jiva}:
   extends: .chaos_test_template #dependencies: mongo-jiva
