@@ -172,7 +172,7 @@ snapshot-clone-creation-{percona-jiva}:
 volume-memory-consumption-{memcheck-jiva}:
   extends: .func_test_template
   script:
-   - chmod 775 ./script/apps/memleak/tests/jivs/memory-consumption
+   - chmod 775 ./script/apps/memleak/tests/jiva/memory-consumption
    - ./script/apps/memleak/tests/jiva/memory-consumption
 
 ## Define job template for chaos jobs 
