@@ -39,6 +39,18 @@ openebs-gke-deploy:
     paths:
       - .kube-openebs/
 
+openebs-sc-deploy:
+  image: atulabhi/kops:v9
+  stage: PROVIDER-INFRA-SETUP
+  dependencies:
+    - gke-cluster
+  script:
+   - chmod 775 ./script/provider/setup-sc
+   - ./script/provider/setup-sc
+  artifacts:
+    paths:
+      - .kube-openebs/
+
 ## Define a job template for app deployers
 
 .app_deploy_template:
@@ -64,6 +76,12 @@ percona-jiva-run/load/check 1:2:
    - sleep 180
   script: 
    - ./script/apps/percona/workload/jiva/percona-app-workload-jiva
+
+# PROMETHEUS-CSTOR
+prometheus-cstor-run/load/check:
+  extends: .app_deploy_template
+  script:
+   - ./script/apps/prometheus/deployer/prometheus-app-deploy-cstor
 
 ## MONGO-JIVA
 mongo-jiva-run/load/check 0:2:
@@ -196,6 +214,12 @@ volume-memory-consumption-{memcheck-jiva}:
   script:
    - chmod 775 ./script/apps/memleak/tests/jiva/memory-consumption
    - ./script/apps/memleak/tests/jiva/memory-consumption
+
+volume-memory-consumption-{memcheck-cstor}:
+  extends: .func_test_template
+  script:
+   - chmod 775 ./script/apps/prometheus/functional/cstor/memcheck/memory-consumption
+   - ./script/apps/prometheus/functional/cstor/memcheck/memory-consumption
 
 app-replica-scale-{cassandra-cstor}:
   extends: .func_test_template #dependencies: cassandra-cstor
