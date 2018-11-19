@@ -200,11 +200,16 @@ app-upgrade-deployment-{jenkins-jiva}:
    - ./script/apps/jenkins/functional/jiva/app-upgrade-deployment
 
 volume-data-integrity-{fio-jiva}:
-  extends: .func_test_template #dependencies: jenkins-jiva
+  extends: .func_test_template
   script:
    - ./script/apps/fio/tests/jiva/fio-volume-data-integrity-check
 
-snapshot-clone-creation-{percona-jiva}:
+volume-data-integrity-{fio-cstor}:
+  extends: .func_test_template
+  script:
+   - ./script/apps/fio/tests/cstor/fio-volume-data-integrity-check
+
+k8s-snapshot-clone-creation-{percona-jiva}:
   extends: .func_test_template
   script:
    - ./script/apps/percona/functional/jiva/k8s-snapshot-clone
