@@ -8,6 +8,7 @@ stages:
   - STATEFUL-APP-DEPLOY
   - APP-FUNC-TEST
   - APP-CHAOS-TEST
+  - APP-DEPROVISION
   - CLUSTER-CLEANUP
 
 variables: 
@@ -275,6 +276,53 @@ tgt-disconnect-{mongo-cstor}:
   extends: .chaos_test_template #dependencies: mongo-cstor
   script:
    - ./script/apps/mongo/chaos/cstor/volume-target-network-delay
+
+## Define a job template for app deprovision
+
+.app_deprovision_template:
+  image: atulabhi/kops:v9
+  stage: APP-DEPROVISION
+  dependencies:
+    - openebs-gke-deploy
+  artifacts:
+    paths:
+     - .kube-openebs/
+
+## PERCONA-JIVA
+percona-jiva-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/percona/deprovision/percona-app-deprovision-jiva
+
+## PROMETHEUS-CSTOR
+prometheus-cstor-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/prometheus/deprovision/prometheus-app-deprovision-cstor
+
+## MONGODB-JIVA
+mongodb-jiva-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/mongo/deprovision/mongo-app-deprovision-jiva
+
+## POSTGRES-JIVA
+postgres-jiva-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/postgres/deprovision/postgres-app-deprovision-jiva
+
+## JENKINS-JIVA
+jenkins-jiva-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/jenkins/deprovision/jenkins-app-deprovision-jiva
+
+## CASSANDRA-JIVA
+cassandra-jiva-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/cassandra/deprovision/cassandra-app-deprovision-jiva
 
 cleanup-gke:
   when: always
