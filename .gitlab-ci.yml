@@ -247,6 +247,11 @@ repl-kill-{percona-jiva}:
   script:
    - ./script/apps/percona/chaos/jiva/volume-replica-failure
 
+app-kill-{mongo-jiva-xfs}:
+  extends: .chaos_test_template #dependencies: mongo-jiva
+  script:
+   - ./script/apps/mongo/chaos/jiva/application-pod-failure
+
 app-kill-{jenkins-cstor}:
   extends: .chaos_test_template #dependencies: jenkins-cstor
   script:
