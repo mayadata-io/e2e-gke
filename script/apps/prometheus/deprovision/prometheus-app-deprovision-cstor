@@ -7,7 +7,7 @@ set -x
 
 #utils_path="/openebs/e2e-gke/script/utils"
 
-run_id="cstor";test_name=$(${utils_path}/generate_test_name testcase=prometheus-deployment metadata=${run_id})
+run_id="cstor-deprovision";test_name=$(${utils_path}/generate_test_name testcase=prometheus-deployment metadata=${run_id})
  
 ###################
 ## DEPENDENCIES  ##
@@ -33,7 +33,7 @@ cd litmus
  | litmusJobLabel       | jobSpec  | prometheus-deployment-litmus | prometheus-deployment-litmus-cstor    |
  | providerStorageClass | env 	   | openebs-standard   | openebs-cstor-sparse                            |
  | appNamespace         | env	   | app-prometheus     | prometheus-cstor                                |
- | runID		| env(add) | 	-		| cstor                                           |
+ | runID		| env(add) | 	-		| cstor-deprovision                                           |
   --------------------------------------------------------------------------------------------------------
 EOF
 

@@ -6,7 +6,7 @@ set -x
 #################
 
 ## https://github.com/openebs/litmus/blob/master/apps/crunchy-postgres/deployers/test_vars.yml
-test_name=$(${utils_path}/generate_test_name testcase=postgres-deployment metadata="")
+run_id="deprovision";test_name=$(${utils_path}/generate_test_name testcase=postgres-deployment metadata=${run_id})
 
 ###################
 ## DEPENDENCIES  ##
@@ -21,9 +21,28 @@ cd litmus
 ## LITMUS PRECONDITIONING ##
 ############################
 
+## TODO: Better way/logic to replace job ENV (SC, PVC, LABEL, NS) based on run instance intent (CLI)
+## TODO: Add logic to add ENV for run_instance_metadata/RunID
+
+: << EOF
+  ------------------------------------------------------------------------------------
+ | specAttribute        | kind     | jiva                | cStor-sparse                 |
+  ------------------------------------------------------------------------------------
+ | litmusJobLabel       | jobSpec  | postgres-deployment | postgres-deployment-cstor     |
+ | providerStorageClass | env      | openebs-standard    | openebs-cstor-sparse         |
+ | appNamespace         | env      | app-postgres-ns     | postgres-cstor                |
+ | runID                | env(add) | deprovision         | cstor-deprovision
+  ------------------------------------------------------------------------------------
+EOF
+
 cp apps/crunchy-postgres/deployers/run_litmus_test.yml run_test.yml
 sed -i -e 's/app: postgres-deployment-litmus/app: postgres-deprovision/g' \
 -e 's/value: provision/value: deprovision/g' run_test.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_id"'\
+' run_test.yml
 
 #################
 ## RUNNER MAIN ##
