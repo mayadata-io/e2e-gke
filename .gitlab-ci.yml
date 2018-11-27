@@ -116,13 +116,6 @@ cassandra-jiva-run/load/check 0:2:
   script: 
    - ./script/apps/cassandra/deployer/cassandra-app-deploy-jiva
 
-cassandra-jiva-run/load/check 1:2:
-  extends: .app_deploy_template
-  before_script: 
-   - sleep 180
-  script: 
-   - ./script/apps/cassandra/workload/jiva/cassandra-app-workload-jiva
-
 # JENKINS-JIVA
 jenkins-jiva-run/load/check:
   extends: .app_deploy_template
@@ -166,13 +159,6 @@ cassandra-cstor-run/load/check 0:2:
   extends: .app_deploy_template
   script:
    - ./script/apps/cassandra/deployer/cassandra-app-deploy-cstor
-
-cassandra-cstor-run/load/check 1:2:
-  extends: .app_deploy_template
-  before_script:
-   - sleep 180
-  script:
-   - ./script/apps/cassandra/workload/cstor/cassandra-app-workload-cstor
 
 # JENKINS_CSTOR
 jenkins-cstor-run/load/check:
