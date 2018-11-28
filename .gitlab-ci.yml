@@ -224,6 +224,11 @@ app-upgrade-deployment-{jenkins-cstor}:
   script:
    - ./script/apps/jenkins/functional/cstor/app-upgrade-deployment
 
+k8s-snapshot-clone-creation-{percona-jiva}:	
+  extends: .func_test_template	
+  script:	
+   - ./script/apps/percona/functional/jiva/k8s-snapshot-clone
+
 ## Define job template for chaos jobs 
 
 .chaos_test_template:
