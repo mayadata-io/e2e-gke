@@ -11,6 +11,7 @@ export GCP_SERVICE_ACCOUNT_FILE="/openebs/e2e-gke/key.json"
 echo "cleanup"
 mkdir ~/logs
 cp .kube/clusters ~/logs
+cp .kube/zone ~/logs
 git clone https://github.com/openebs/litmus.git 
 cd litmus/k8s/gke/k8s-installer/
 echo "cleanup"
