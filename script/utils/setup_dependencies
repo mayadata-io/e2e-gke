@@ -12,6 +12,7 @@ derive_cluster_details_infra()
  ## Transfer cluster config & physical details into '.kube-openebs'
  cp  .kube/config ~/.kube/config
  cat /openebs/e2e-gke/.kube/clusters > .kube-openebs/clusters
+ cat /openebs/e2e-gke/.kube/zone > .kube-openebs/zone
 }
  
 setup_cluster_config_test()
@@ -20,6 +21,7 @@ setup_cluster_config_test()
  cp .kube-openebs/config ~/.kube/config
  mkdir ~/logs
  cp .kube-openebs/clusters ~/logs
+ cp .kube-openebs/zone ~/logs
 }
 
 if [[ $1 == "infra-setup" ]]; then

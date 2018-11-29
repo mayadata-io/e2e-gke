@@ -78,6 +78,12 @@ percona-jiva-run/load/check 1:2:
   script: 
    - ./script/apps/percona/workload/jiva/percona-app-workload-jiva
 
+## PERCONA-JIVA-SINGLE-REPLICA
+percona-jiva-single-replica-run/load/check:
+  extends: .app_deploy_template
+  script:
+   - ./script/apps/percona/deployer/percona-deploy-jiva-single-replica
+
 # PROMETHEUS-CSTOR
 prometheus-cstor-run/load/check:
   extends: .app_deploy_template
@@ -217,6 +223,11 @@ app-upgrade-deployment-{jenkins-cstor}:
   extends: .func_test_template #dependencies: jenkins-cstor
   script:
    - ./script/apps/jenkins/functional/cstor/app-upgrade-deployment
+
+k8s-snapshot-clone-creation-{percona-jiva}:	
+  extends: .func_test_template	
+  script:	
+   - ./script/apps/percona/functional/jiva/k8s-snapshot-clone
 
 ## Define job template for chaos jobs 
 
