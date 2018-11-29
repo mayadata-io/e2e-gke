@@ -25,6 +25,7 @@ mkdir /openebs/e2e-gke/.kube
 cat ~/.kube/config > /openebs/e2e-gke/.kube/config
 cat ~/.kube/config > /openebs/e2e-gke/.kube/admin.conf
 cat ~/logs/clusters > /openebs/e2e-gke/.kube/clusters
+cat ~/logs/clusters > /openebs/e2e-gke/.kube/zone
 
 kubectl get nodes
 wget https://raw.githubusercontent.com/openebs/litmus/master/hack/rbac.yaml
