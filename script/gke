@@ -8,24 +8,18 @@ export GOOGLE_APPLICATION_CREDENTIALS="/openebs/e2e-gke/key.json"
 export GCP_SERVICE_ACCOUNT_FILE="/openebs/e2e-gke/key.json"
 export GKEUSER=`echo $GKE_USER`
 
-# git clone https://github.com/atulabhi/litmus.git
-
-# cd litmus/
-
-# git checkout v0.7-RC1
- 
 git clone https://github.com/openebs/litmus.git
 cd litmus/k8s/gke/k8s-installer/
 
 echo "creating cluster"
 
-ansible-playbook create-gke-cluster.yml -e machine_type=n1-standard-4 -vv
+ansible-playbook create-gke-cluster.yml -vv
 
 mkdir /openebs/e2e-gke/.kube
 cat ~/.kube/config > /openebs/e2e-gke/.kube/config
 cat ~/.kube/config > /openebs/e2e-gke/.kube/admin.conf
 cat ~/logs/clusters > /openebs/e2e-gke/.kube/clusters
-cat ~/logs/clusters > /openebs/e2e-gke/.kube/zone
+cat ~/logs/zone > /openebs/e2e-gke/.kube/zone
 
 kubectl get nodes
 wget https://raw.githubusercontent.com/openebs/litmus/master/hack/rbac.yaml
