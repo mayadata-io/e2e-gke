@@ -281,10 +281,15 @@ ctrl-disconnect-{postgres-jiva}:
   script:
    - ./script/apps/postgres/chaos/jiva/volume-controller-network-delay
 
-tgt-kill-{percona-cstor}:
+target/failure/check 0:2:  # target container kill
   extends: .chaos_test_template #dependencies: percona-cstor
   script:
    - ./script/apps/percona/chaos/cstor/volume-target-failure
+
+target/failure/check 1:2: # target pod delete
+  extends: .chaos_test_template #dependencies: percona-cstor
+  script:
+   - ./script/apps/percona/chaos/cstor/volume-target-delete
 
 tgt-disconnect-{mongo-cstor}:
   extends: .chaos_test_template #dependencies: mongo-cstor
