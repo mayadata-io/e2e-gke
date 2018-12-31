@@ -235,6 +235,16 @@ cstor-k8s-snapshot-clone-creation-{snapshot-clone-cStor}:
   script:
    - ./script/apps/percona/functional/cstor/k8s-snapshot-clone-cstor
 
+Snapshot-rebuild-single-replica-{percona-cstor}:
+  extends: .func_test_template
+  script:
+   - ./script/apps/percona/functional/cstor/snapshot-rebuild-single-rep
+
+Snapshot-rebuild-multiple-replica-{percona-cstor}:
+  extends: .func_test_template
+  script:
+   - ./script/apps/percona/functional/cstor/snapshot-rebuild-multiple-rep  
+
 ## Define job template for chaos jobs 
 
 .chaos_test_template:
