@@ -14,8 +14,8 @@ kubectl get po -n gitlab-runner
 kubectl get pods -n gitlab-runner -o go-template --template '{{range .items}}{{.metadata.name}} {{.metadata.creationTimestamp}}{{"\n"}}{{end}}' | awk '$2 <= "'$(date -d'now-6 hours' -Ins --utc | sed 's/+0000/Z/')'" { print $1 }' | grep "runner.*project-5" | xargs --no-run-if-empty kubectl delete pod -n gitlab-runner
 
 git clone https://github.com/nsathyaseelan/litmus.git
-git checkout gke-log
 cd litmus/k8s/gke/k8s-installer/
+git checkout gke-log
 
 echo "creating cluster"
 
