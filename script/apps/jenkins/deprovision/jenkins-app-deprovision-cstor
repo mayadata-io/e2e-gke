@@ -33,7 +33,7 @@ cd litmus
   -------------------------------------------------------------------------------------------
 EOF
 
-cp apps/cassandra/deployers/run_litmus_test.yml run_test.yml
+cp apps/jenkins/deployers/run_litmus_test.yml run_test.yml
 sed -i -e 's/app: jenkins-deployment-litmus/app: jenkins-deprovision-cstor/g' \
 -e 's/value: provision/value: deprovision/g' \
 -e 's/value: app-jenkins-ns/value: jenkins-cstor/g' run_test.yml

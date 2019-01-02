@@ -33,7 +33,7 @@ cd litmus
   -------------------------------------------------------------------------------------------
 EOF
 
-cp apps/cassandra/deployers/run_litmus_test.yml run_test.yml
+cp apps/percona/deployers/run_litmus_test.yml run_test.yml
 sed -i -e 's/app: percona-deployment-litmus/app: percona-deprovision-cstor/g' \
 -e 's/value: provision/value: deprovision/g' \
 -e 's/value: app-percona-ns/value: percona-cstor/g' run_test.yml

@@ -33,7 +33,7 @@ cd litmus
   -------------------------------------------------------------------------------------------
 EOF
 
-cp apps/cassandra/deployers/run_litmus_test.yml run_test.yml
+cp apps/mongodb/deployers/run_litmus_test.yml run_test.yml
 sed -i -e 's/app: mongodb-deployment-litmus/app: mongodb-deprovision-cstor/g' \
 -e 's/value: provision/value: deprovision/g' \
 -e 's/value: app-mongo-ns/value: mongocstor/g' run_test.yml
