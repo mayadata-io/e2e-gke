@@ -6,7 +6,7 @@ set -x
 #################
 
 ## https://github.com/openebs/litmus/blob/master/apps/cassandra/deployers/test_vars.yml
-run_id="cstor";test_name=$(${utils_path}/generate_test_name testcase=cassandra-deprovision metadata=${run_id})
+run_id="cstor";test_name=$(${utils_path}/generate_test_name testcase=mongo-deprovision metadata=${run_id})
 
 ###################
 ## DEPENDENCIES  ##
@@ -26,7 +26,7 @@ cd litmus
   -------------------------------------------------------------------------------------------
  | specAttribute        | kind	   | jiva        	         | cStor-sparse  	     |
   -------------------------------------------------------------------------------------------
- | litmusJobLabel       | jobSpec  | cassandra-deployment-litmus | casandra-deprovision-cstor|
+ | litmusJobLabel       | jobSpec  | mongodb-deployment-litmus | mongo-deprovision-cstor|
  | Action               | env 	   | provision                   | deprovision               |
  | appNamespace         | env	   | app-cass-ns                 | cassandra-cstor           |
  | runID		| env(add) | 	-	         	 | cstor                     |
@@ -34,9 +34,9 @@ cd litmus
 EOF
 
 cp apps/cassandra/deployers/run_litmus_test.yml run_test.yml
-sed -i -e 's/app: cassandra-deployment-litmus/app: cassandra-deprovision-cstor/g' \
+sed -i -e 's/app: mongodb-deployment-litmus/app: mongodb-deprovision-cstor/g' \
 -e 's/value: provision/value: deprovision/g' \
--e 's/value: app-cass-ns/value: cassandra-cstor/g' run_test.yml
+-e 's/value: app-mongo-ns/value: mongocstor/g' run_test.yml
 
 sed -i '/command:/i \
           - name: RUN_ID\
@@ -48,7 +48,7 @@ sed -i '/command:/i \
 #################
 
 echo "Running the litmus test.."
-${utils_path}/litmus_job_runner label='app:cassandra-deprovision-cstor' job=run_test.yml
+${utils_path}/litmus_job_runner label='app:mongodb-deprovision-cstor' job=run_test.yml
 ${utils_path}/task_delimiter;
 
 echo "Dumping state of cluster post job run"; echo ""
