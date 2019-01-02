@@ -172,6 +172,12 @@ jenkins-cstor-run/load/check:
   script:
    - ./script/apps/jenkins/deployer/jenkins-app-deploy-cstor  
 
+# NUODB-CSTOR
+nuodb-cstor-run/load:
+  extends: .app_deploy_template
+  script:
+   - ./script/apps/nuodb/deployer/nuodb-app-deploy-cstor
+
 ## Define job template for func test jobs  
 
 .func_test_template:
