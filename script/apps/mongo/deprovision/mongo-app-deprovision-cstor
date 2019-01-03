@@ -6,7 +6,7 @@ set -x
 #################
 
 ## https://github.com/openebs/litmus/blob/master/apps/cassandra/deployers/test_vars.yml
-run_id="cstor";test_name=$(${utils_path}/generate_test_name testcase=mongo-deprovision metadata=${run_id})
+run_id="deprovision-cstor";test_name=$(${utils_path}/generate_test_name testcase=mongo-deployment metadata=${run_id})
 
 ###################
 ## DEPENDENCIES  ##
