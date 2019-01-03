@@ -66,23 +66,23 @@ openebs-sc-deploy:
 ## Define the app deployer jobs
 
 ## PERCONA-JIVA
-percona-jiva-run/load/check 0:2:
-  extends: .app_deploy_template
-  script: 
-   - ./script/apps/percona/deployer/percona-app-deploy-jiva
-
-percona-jiva-run/load/check 1:2:
-  extends: .app_deploy_template
-  before_script: 
-   - sleep 180
-  script: 
-   - ./script/apps/percona/workload/jiva/percona-app-workload-jiva
-
-## PERCONA-JIVA-SINGLE-REPLICA
-percona-jiva-single-replica-run/load/check:
-  extends: .app_deploy_template
-  script:
-   - ./script/apps/percona/deployer/percona-deploy-jiva-single-replica
+#percona-jiva-run/load/check 0:2:
+#  extends: .app_deploy_template
+#  script: 
+#   - ./script/apps/percona/deployer/percona-app-deploy-jiva
+#
+#percona-jiva-run/load/check 1:2:
+#  extends: .app_deploy_template
+#  before_script: 
+#   - sleep 180
+#  script: 
+#   - ./script/apps/percona/workload/jiva/percona-app-workload-jiva
+#
+### PERCONA-JIVA-SINGLE-REPLICA
+#percona-jiva-single-replica-run/load/check:
+#  extends: .app_deploy_template
+#  script:
+#   - ./script/apps/percona/deployer/percona-deploy-jiva-single-replica
 
 # PROMETHEUS-CSTOR
 prometheus-cstor-run/load/check:
@@ -91,42 +91,42 @@ prometheus-cstor-run/load/check:
    - ./script/apps/prometheus/deployer/prometheus-app-deploy-cstor
 
 ## MONGO-JIVA
-mongo-jiva-run/load/check 0:2:
-  extends: .app_deploy_template
-  script: 
-   - ./script/apps/mongo/deployer/mongo-app-deploy-jiva
-
-mongo-jiva-run/load/check 1:2:
-  extends: .app_deploy_template
-  before_script: 
-   - sleep 180
-  script: 
-   - ./script/apps/mongo/workload/jiva/mongo-app-workload-jiva
-
-# POSTGRES-JIVA
-postgres-jiva-run/load/check 0:2:
-  extends: .app_deploy_template
-  script: 
-   - ./script/apps/postgres/deployer/postgres-app-deploy-jiva
-
-postgres-jiva-run/load/check 1:2:
-  extends: .app_deploy_template
-  before_script: 
-   - sleep 180
-  script: 
-   - ./script/apps/postgres/workload/jiva/postgres-app-workload-jiva
-
-# CASSANDRA-JIVA
-cassandra-jiva-run/load/check 0:2:
-  extends: .app_deploy_template
-  script: 
-   - ./script/apps/cassandra/deployer/cassandra-app-deploy-jiva
-
-# JENKINS-JIVA
-jenkins-jiva-run/load/check:
-  extends: .app_deploy_template
-  script: 
-   - ./script/apps/jenkins/deployer/jenkins-app-deploy-jiva
+#mongo-jiva-run/load/check 0:2:
+#  extends: .app_deploy_template
+#  script: 
+#   - ./script/apps/mongo/deployer/mongo-app-deploy-jiva
+#
+#mongo-jiva-run/load/check 1:2:
+#  extends: .app_deploy_template
+#  before_script: 
+#   - sleep 180
+#  script: 
+#   - ./script/apps/mongo/workload/jiva/mongo-app-workload-jiva
+#
+## POSTGRES-JIVA
+#postgres-jiva-run/load/check 0:2:
+#  extends: .app_deploy_template
+#  script: 
+#   - ./script/apps/postgres/deployer/postgres-app-deploy-jiva
+#
+#postgres-jiva-run/load/check 1:2:
+#  extends: .app_deploy_template
+#  before_script: 
+#   - sleep 180
+#  script: 
+#   - ./script/apps/postgres/workload/jiva/postgres-app-workload-jiva
+#
+## CASSANDRA-JIVA
+#cassandra-jiva-run/load/check 0:2:
+#  extends: .app_deploy_template
+#  script: 
+#   - ./script/apps/cassandra/deployer/cassandra-app-deploy-jiva
+#
+## JENKINS-JIVA
+#jenkins-jiva-run/load/check:
+#  extends: .app_deploy_template
+#  script: 
+#   - ./script/apps/jenkins/deployer/jenkins-app-deploy-jiva
 
 # JENKINS-CSTOR
 jenkins-cstor-run/load/check:
@@ -173,10 +173,10 @@ jenkins-cstor-run/load/check:
    - ./script/apps/jenkins/deployer/jenkins-app-deploy-cstor  
 
 # NUODB-CSTOR
-nuodb-cstor-run/load:
-  extends: .app_deploy_template
-  script:
-   - ./script/apps/nuodb/deployer/nuodb-app-deploy-cstor
+#nuodb-cstor-run/load:
+#  extends: .app_deploy_template
+##  script:
+#  - ./script/apps/nuodb/deployer/nuodb-app-deploy-cstor
 
 ## Define job template for func test jobs  
 
@@ -312,42 +312,12 @@ nuodb-cstor-run/load:
     paths:
      - .kube-openebs/
 
-## PERCONA-JIVA
-percona-jiva-deprovision:
-  extends: .app_deprovision_template
-  script:
-   - ./script/apps/percona/deprovision/percona-app-deprovision-jiva
 
 ## PROMETHEUS-CSTOR
 prometheus-cstor-deprovision:
   extends: .app_deprovision_template
   script:
    - ./script/apps/prometheus/deprovision/prometheus-app-deprovision-cstor
-
-## MONGODB-JIVA
-mongodb-jiva-deprovision:
-  extends: .app_deprovision_template
-  script:
-   - ./script/apps/mongo/deprovision/mongo-app-deprovision-jiva
-
-## POSTGRES-JIVA
-postgres-jiva-deprovision:
-  extends: .app_deprovision_template
-  script:
-   - ./script/apps/postgres/deprovision/postgres-app-deprovision-jiva
-
-## JENKINS-JIVA
-jenkins-jiva-deprovision:
-  extends: .app_deprovision_template
-  script:
-   - ./script/apps/jenkins/deprovision/jenkins-app-deprovision-jiva
-
-## CASSANDRA-JIVA
-cassandra-jiva-deprovision:
-  extends: .app_deprovision_template
-  script:
-   - ./script/apps/cassandra/deprovision/cassandra-app-deprovision-jiva
-
 ## PERCONA-CSTOR
 percona-cstor-deprovision:
   extends: .app_deprovision_template
