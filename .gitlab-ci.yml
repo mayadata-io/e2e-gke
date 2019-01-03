@@ -348,6 +348,30 @@ cassandra-jiva-deprovision:
   script:
    - ./script/apps/cassandra/deprovision/cassandra-app-deprovision-jiva
 
+## PERCONA-CSTOR
+percona-cstor-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/percona/deprovision/percona-app-deprovision-cstor
+
+## MONGODB-CSTOR
+mongodb-cstor-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/mongo/deprovision/mongo-app-deprovision-cstor
+
+## JENKINS-CSTOR
+jenkins-cstor-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/jenkins/deprovision/jenkins-app-deprovision-cstor
+
+## CASSANDRA-CSTOR
+cassandra-cstor-deprovision:
+  extends: .app_deprovision_template
+  script:
+   - ./script/apps/cassandra/deprovision/cassandra-app-deprovision-cstor
+
 cleanup-gke:
   when: always
   image: atulabhi/kops:v9
