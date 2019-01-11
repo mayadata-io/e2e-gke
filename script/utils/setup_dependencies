@@ -1,9 +1,9 @@
 #!/bin/bash
-set -x 
+set -x
 
 derive_cluster_details_infra()
 {
- 
+ path=$(pwd)
  ## Get kubeconfig file into infra-setup gitlab runner pod
  mkdir .kube-openebs
  mkdir ~/.kube
@@ -11,10 +11,10 @@ derive_cluster_details_infra()
 
  ## Transfer cluster config & physical details into '.kube-openebs'
  cp  .kube/config ~/.kube/config
- cat /openebs/e2e-gke/.kube/clusters > .kube-openebs/clusters
- cat /openebs/e2e-gke/.kube/zone > .kube-openebs/zone
+ cat $path/.kube/clusters > .kube-openebs/clusters
+ cat $path/.kube/zone > .kube-openebs/zone
 }
- 
+
 setup_cluster_config_test()
 {
  mkdir ~/.kube
@@ -29,4 +29,4 @@ if [[ $1 == "infra-setup" ]]; then
 elif [[ $1 == "litmus-test" ]]; then
  setup_cluster_config_test;
 else echo "invalid job type"; exit 1
-fi 
+fi
