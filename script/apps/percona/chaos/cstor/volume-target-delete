@@ -14,8 +14,12 @@ run_id="delete-cstor";test_name=$(${utils_path}/generate_test_name testcase=open
 ${utils_path}/setup_dependencies litmus-test
 
 ## Clone the litmus repo, navigate to litmus root 
-git clone https://github.com/openebs/litmus.git
+#git clone https://github.com/openebs/litmus.git
+#cd litmus
+git clone https://github.com/mittachaitu/litmus.git
 cd litmus
+git checkout change_delays_retries
+
 
 ######################
 ## JOB DEPENDENCIES ##

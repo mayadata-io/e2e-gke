@@ -10,16 +10,19 @@ set -x
 ## https://github.com/openebs/litmus/blob/master/apps/percona/deployers/test_vars.yml
 
 run_id="single-replica"; test_name=$(${utils_path}/generate_test_name testcase=percona-deployment metadata=${run_id})
-      
+
 ###################
 ## DEPENDENCIES  ##
 ###################
 
 ${utils_path}/setup_dependencies litmus-test
 
-## Clone the litmus repo,navigate to litmus root 
-git clone https://github.com/openebs/litmus.git
-cd litmus 
+## Clone the litmus repo,navigate to litmus root
+#git clone https://github.com/openebs/litmus.git
+#cd litmus
+git clone https://github.com/mittachaitu/litmus.git
+cd litmus
+git checkout change_delays_retries
 
 ############################
 ## LITMUS PRECONDITIONING ##
