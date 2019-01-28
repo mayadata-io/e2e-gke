@@ -17,23 +17,13 @@ derive_cluster_details_infra()
 
 setup_cluster_config_test()
 {
- path=$(pwd)	
  mkdir ~/.kube
  cp .kube-openebs/config ~/.kube/config
  mkdir ~/logs
  cp .kube-openebs/clusters ~/logs
  cp .kube-openebs/zone ~/logs
- ls .kube-openebs/clusters
- ls .kube-openebs/zone
- ls ~/logs
- ls ~/logs/clusters
- ls ~/logs/zone
- cat ~/logs/zone
- cat ~/logs/clusters
- ls $path/.kube/clusters
- ls $path/.kube/zone 
-# cluster_name=cat .kube-openebs/clusters
-# zone=cat .kube-openebs/zone
+ cluster_name=$(cat ~/logs/clusters)
+ zone=$(cat ~/logs/zone)
  gcloud container clusters get-credentials $cluster_name --zone $zone --project openebs-ci
 }
 
