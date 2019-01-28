@@ -26,6 +26,10 @@ setup_cluster_config_test()
  ls .kube-openebs/clusters
  ls .kube-openebs/zone
  ls ~/logs
+ ls ~/logs/clusters
+ ls ~/logs/zone
+ cat ~/logs/zone
+ cat ~/logs/clusters
  ls $path/.kube/clusters
  ls $path/.kube/zone 
 # cluster_name=cat .kube-openebs/clusters
