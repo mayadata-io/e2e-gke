@@ -22,6 +22,9 @@ setup_cluster_config_test()
  mkdir ~/logs
  cp .kube-openebs/clusters ~/logs
  cp .kube-openebs/zone ~/logs
+ cluster_name=cat .kube-openebs/clusters
+ zone=cat .kube-openebs/zone
+ gcloud container clusters get-credentials $cluster_name --zone $zone --project openebs-ci
 }
 
 if [[ $1 == "infra-setup" ]]; then
