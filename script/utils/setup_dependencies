@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -e
 
 derive_cluster_details_infra()
 {
@@ -22,6 +22,17 @@ setup_cluster_config_test()
  mkdir ~/logs
  cp .kube-openebs/clusters ~/logs
  cp .kube-openebs/zone ~/logs
+ cluster_name=$(cat ~/logs/clusters)
+ zone=$(cat ~/logs/zone)
+ path=$(pwd)
+ echo $SDK_TOKEN > key.json
+ gcloud auth activate-service-account --key-file=key.json
+ gcloud config set project openebs-ci
+ export GOOGLE_APPLICATION_CREDENTIALS="$path/key.json"
+ export GCP_SERVICE_ACCOUNT_FILE="$path/key.json"
+ export GKEUSER=`echo $GKE_USER`
+
+ gcloud container clusters get-credentials $cluster_name --zone $zone --project openebs-ci
 }
 
 if [[ $1 == "infra-setup" ]]; then
