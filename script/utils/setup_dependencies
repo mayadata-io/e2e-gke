@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+set -e
 
 derive_cluster_details_infra()
 {
