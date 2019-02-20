@@ -21,6 +21,7 @@ gke-cluster:
   stage: CLUSTER-SETUP 
   script:
     - chmod 775 ./script/gke      
+    - echo "PIPELINEMODE=$CI_PIPELINE_SOURCE"      
     - ./script/gke
   artifacts:
     paths:
