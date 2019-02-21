@@ -6,8 +6,6 @@ set -ex
 ######################
 
 
-utils_path=/home/ubuntu/learn/e2e-gke/script/utils
-
 ## TODO: Ideally, run_metadata should be passed as gitlab runner (CI runtime) ENV
 present_dir=$(pwd)
 #clone e2e-infrastructre to get the latest commits and run env-exporter script from env
