@@ -30,6 +30,8 @@ export OPENEBS_IO_CSTOR_TARGET_IMAGE=v0.8.1-RC2
 
 export NODE_DISK_MANAGER_IMAGE=v0.3.0-RC2
 
+cd $present_dir
+
 test_name=$(${utils_path}/generate_test_name testcase=openebsinstaller metadata="")
 
 ## Display pipeline info
