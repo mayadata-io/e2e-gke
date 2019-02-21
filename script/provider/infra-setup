@@ -6,33 +6,33 @@ set -ex
 ######################
 
 
+utils_path=/home/ubuntu/learn/e2e-gke/script/utils
+
 ## TODO: Ideally, run_metadata should be passed as gitlab runner (CI runtime) ENV
 present_dir=$(pwd)
 #clone e2e-infrastructre to get the latest commits and run env-exporter script from env
 git clone https://github.com/openebs/e2e-infrastructure.git
 cd e2e-infrastructure/env
 ##exporting jiva-controller-image as env##
-export OPENEBS_IO_JIVA_CONTROLLER_IMAGE=$(eval python env_exporter.py -o jcontroller -fp ../baseline/baseline)
+export OPENEBS_IO_JIVA_CONTROLLER_IMAGE=v0.8.1-RC2 
 ##exporting jiva-replica-image as env##
-export OPENEBS_IO_JIVA_REPLICA_IMAGE=$(eval python env_exporter.py -o jreplica -fp ../baseline/baseline)
+export OPENEBS_IO_JIVA_REPLICA_IMAGE=v0.8.1-RC2
 ##exporting m-apiserver as env##
-export MAYA_APISERVER_IMAGE=$(eval python env_exporter.py -o mapi -fp ../baseline/baseline)
+export MAYA_APISERVER_IMAGE=v0.8.1-RC2
 ##exporting maya-volume-exporter as env##
-export OPENEBS_IO_VOLUME_MONITOR_IMAGE=$(eval python env_exporter.py -o iovolume -fp ../baseline/baseline)
+export OPENEBS_IO_VOLUME_MONITOR_IMAGE=v0.8.1-RC2
 ##exporting istgt-image as env##
-export OPENEBS_IO_CSTOR_VOLUME_MGMT_IMAGE=$(eval python env_exporter.py -o cvolmgmt -fp ../baseline/baseline)
+export OPENEBS_IO_CSTOR_VOLUME_MGMT_IMAGE=v0.8.1-RC2
 ##exporting zfs-image as env##
-export OPENEBS_IO_CSTOR_POOL_MGMT_IMAGE=$(eval python env_exporter.py -o cpoolmgmt -fp ../baseline/baseline)
+export OPENEBS_IO_CSTOR_POOL_MGMT_IMAGE=v0.8.1-RC2
 ##
-export OPENEBS_IO_CSTOR_POOL_IMAGE=$(eval python env_exporter.py -o cstorpool -fp ../baseline/baseline)
+export OPENEBS_IO_CSTOR_POOL_IMAGE=v0.8.1-RC2
 ##
-export OPENEBS_IO_CSTOR_TARGET_IMAGE=$(eval python env_exporter.py -o target -fp ../baseline/baseline)
-##
+export OPENEBS_IO_CSTOR_TARGET_IMAGE=v0.8.1-RC2
 
-cd $present_dir
+export NODE_DISK_MANAGER_IMAGE=v0.3.0-RC2
 
 test_name=$(${utils_path}/generate_test_name testcase=openebsinstaller metadata="")
-
 
 ## Display pipeline info
 echo $CI_PIPELINE_ID; echo $CI_PIPELINE_IID; echo $CI_COMMIT_SHA
@@ -56,8 +56,9 @@ ansible-playbook efk.yml --extra-vars "commit_id=$CI_COMMIT_SHA pipeline_id=$CI_
 
 ## Clone the litmus repo, navigate to litmus root 
 
-git clone https://github.com/openebs/litmus.git
+git clone https://github.com/nsathyaseelan/litmus.git  #https://github.com/openebs/litmus.git
 cd litmus
+git checkout ndm-replace
 
 ${utils_path}/task_delimiter;
 
