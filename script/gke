@@ -8,7 +8,7 @@ export GOOGLE_APPLICATION_CREDENTIALS="$path/key.json"
 export GCP_SERVICE_ACCOUNT_FILE="$path/key.json"
 export GKEUSER=`echo $GKE_USER`
 
-git clone https://github.com/openebs/litmus.git
+git clone https://github.com/mayadata-io/litmus.git
 cd litmus/k8s/gke/k8s-installer/
 
 echo "creating cluster"
