@@ -1,0 +1,70 @@
+#!/bin/bash
+set -x
+
+source ~/.profile
+
+job_id=$CI_JOB_ID
+pipeline_id=$CI_PIPELINE_ID
+releaseTag=$RELEASE_TAG
+
+time="date"
+current_time=$(eval $time)
+
+present_dir=$(pwd)
+echo $present_dir
+
+echo "Setting up test dependencies.."   
+${utils_path}/setup_dependencies litmus-test
+
+bash script/utils/e2e-cr jobname:bb-controller-nw-delay jobphase:Waiting
+bash script/utils/e2e-cr jobname:bb-controller-kill jobphase:Waiting
+bash script/utils/e2e-cr jobname:bb-controller-kill jobphase:Running init_time:"$current_time" job_id:"$job_id" pipeline_id:"$pipeline_id" openebs_version:"$releaseTag"
+
+## Performing controller kill
+
+run_id="ctrl-kill";test_name=$(bash script/utils/generate_test_name testcase=openebs-target-failure metadata=${run_id})
+echo $test_name
+
+git clone https://github.com/mayadata-io/litmus.git
+cd litmus
+cp experiments/chaos/openebs_target_failure/run_litmus_test.yml run_ctrl_kill_test.yml
+
+sed -i -e 's/value: percona-mysql-claim/value: openebs-busybox/g' \
+-e 's/generateName: openebs-target-failure/generateName: openebs-controller-failure/g' \
+-e 's/openebs-target-failure/openebs-controller-failure/g' \
+-e 's/name: target-failure/name: ctrl-failure-configmap/g' \
+-e 's/value: docker/value: containerd/g' \
+-e 's/value: '\''name=percona'\''/value: '\''app=busybox-sts'\''/g' \
+-e 's/value: app-percona-ns/value: bb-jiva-deployment/g' run_ctrl_kill_test.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_id"'\
+' run_ctrl_kill_test.yml
+
+## Replace the value of DATA_PERSISTENCE with application name in litmus experiment.
+sed -i '/name: DATA_PERSISTENCE/{n;s/.*/            value: busybox/}' run_ctrl_kill_test.yml
+
+## Insert the set of variables for busybox data consistency util into configmap spec.
+sed -i '/parameters.yml: |/a \
+    blocksize: 4k\
+    blockcount: 1024\
+    testfile: ctrlkilltest
+' run_ctrl_kill_test.yml
+
+cat run_ctrl_kill_test.yml
+
+bash ../script/utils/litmus_job_runner label='name:openebs-controller-failure' job=run_ctrl_kill_test.yml
+cd ..
+bash script/utils/dump_cluster_state;
+bash script/utils/event_updater jobname:bb-controller-kill $test_name jobid:"$job_id" pipelineid:"$pipeline_id"
+
+rc_val=$(echo $?)
+current_time=$(eval $time)
+
+if [ "$rc_val" != "0" ]; then
+bash script/utils/e2e-cr jobname:bb-controller-kill jobphase:Completed end_time:"$current_time" jobid:"$job_id" pipelineid:"$pipeline_id" openebs_version:"$releaseTag" test_result:Fail
+exit 1;
+fi
+
+bash script/utils/e2e-cr jobname:bb-controller-kill jobphase:Completed end_time:"$current_time" jobid:"$job_id" pipelineid:"$pipeline_id" openebs_version:"$releaseTag" test_result:Pass
