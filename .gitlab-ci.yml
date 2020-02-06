@@ -44,8 +44,8 @@ openebs-sc-deploy:
   dependencies:
     - gke-cluster
   script:
-   - chmod 775 ./script/2-Infra-setup/storage-policies/openebs-sc
-   - ./script/2-Infra-setup/storage-policies/openebs-sc
+   - chmod 775 ./script/2-infra-setup/storage-policies/openebs-sc
+   - ./script/2-infra-setup/storage-policies/openebs-sc
   artifacts:
     paths:
       - .kube-openebs/
@@ -56,8 +56,8 @@ cStor-striped-pool:
   dependencies:
     - gke-cluster
   script:
-   - chmod 775 ./script/2-Infra-setup/create-striped-pool/create-striped-pool
-   - ./script/2-Infra-setup/create-striped-pool/create-striped-pool
+   - chmod 775 ./script/2-infra-setup/create-striped-pool/create-striped-pool
+   - ./script/2-infra-setup/create-striped-pool/create-striped-pool
   artifacts:
     paths:
       - .kube-openebs/
