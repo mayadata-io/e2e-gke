@@ -66,11 +66,3 @@ bash script/utils/e2e-cr jobname:upgrade-cstor jobphase:Completed end_time:"$cur
 if [ "$rc_val" != "0" ]; then
 exit 1;
 fi
-
-}
-
-if [ "$1" == "node" ];then
-  node $2 $3 $4 $5 $6 $7 $8 $9
-else
-  pod
-fi
