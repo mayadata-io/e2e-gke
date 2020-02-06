@@ -1,0 +1,181 @@
+#!/bin/bash
+set -x
+
+source ~/.profile
+
+job_id=$CI_JOB_ID
+pipeline_id=$CI_PIPELINE_ID
+releaseTag=$RELEASE_TAG
+
+time="date"
+current_time=$(eval $time)
+
+present_dir=$(pwd)
+echo $present_dir
+
+echo "Setting up test dependencies.."   
+${utils_path}/setup_dependencies litmus-test
+
+bash script/utils/e2e-cr jobname:percona-hostpath jobphase:Waiting
+bash script/utils/e2e-cr jobname:percona-hostpath jobphase:Running init_time:"$current_time" job_id:"$job_id" pipeline_id:"$pipeline_id" openebs_version:"$releaseTag"
+
+## Deploying percona application...
+
+run_id="hostpath";test_name=$(bash script/utils/generate_test_name testcase=percona-deployment metadata=${run_id})
+echo $test_name
+
+git clone https://github.com/mayadata-io/litmus.git
+cd litmus
+echo "Running the litmus test for percona Deployment..."
+cp apps/percona/deployers/run_litmus_test.yml percona_hostpath.yml
+
+sed -i -e 's/app: percona-deployment/app: percona-deploy-hostpath/g' \
+-e 's/value: openebs-standard/value: openebs-hostpath/g' \
+-e 's/value: enable/value: disable/g' \
+-e 's/value: app-percona-ns/value: percona-hostpath-ns/g' percona_hostpath.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_id"'\
+' percona_hostpath.yml
+
+cat percona_hostpath.yml
+
+bash ../script/utils/litmus_job_runner label='app:percona-deploy-hostpath' job=percona_hostpath.yml
+cd ..
+
+bash script/utils/dump_cluster_state;
+bash script/utils/event_updater jobname:percona-hostpath $test_name jobid:"$job_id" pipeline_id:"$pipeline_id"
+
+if [ "$?" != "0" ]; then
+exit 1;
+fi
+
+##DATA-PERSISTENCE-load
+
+run_id="percona-hostpath-load";test_name=$(bash script/utils/generate_test_name testcase=data-persistence-check metadata=${run_id})
+echo $test_name
+
+cd litmus
+echo "Running the litmus experiment to check data-persistence for percona Application..."
+cp experiments/functional/data-persistence/run_litmus_test.yml percona_hostpath_load.yml
+
+sed -i -e 's/generateName: data-persistence-litmus-/generateName: data-persistence-percona-hostpath-/g' \
+-e 's/name: data-persistence/name: percona-hostpath-cm/g' \
+-e 's/name: litmus-data-persistence/name: percona-hostpath-load/g' \
+-e '/name: APP_NAMESPACE/{n;s/.*/            value: percona-hostpath-ns/}' \
+-e '/name: APP_LABEL/{n;s/.*/            value: '\''name=percona'\''/}' \
+-e '/name: STATUS/{n;s/.*/            value: LOAD/}' \
+-e '/name: DATA_PERSISTENCE/{n;s/.*/            value: mysql/}' percona_hostpath_load.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_id"'\
+' percona_hostpath_load.yml
+
+## Insert the set of variables for percona data consistency util into configmap spec.
+sed -i '/parameters.yml: |/a \
+    dbuser: root \
+    dbpassword: k8sDem0 \
+    dbname: db_percona_hostpath
+' percona_hostpath_load.yml
+
+cat percona_hostpath_load.yml
+
+bash ../script/utils/litmus_job_runner label='name:percona-hostpath-load' job=percona_hostpath_load.yml
+cd ..
+
+bash script/utils/dump_cluster_state;
+bash script/utils/event_updater jobname:percona-hostpath $test_name jobid:"$job_id" pipeline_id:"$pipeline_id"
+
+if [ "$?" != "0" ]; then
+exit 1;
+fi
+
+##DATA-PERSISTENCE-verify
+
+run_id="percona-hostpath-verify";test_name=$(bash script/utils/generate_test_name testcase=data-persistence-check metadata=${run_id})
+echo $test_name
+
+cd litmus
+echo "Running the litmus experiment to check data-persistence for percona Application..."
+cp experiments/functional/data-persistence/run_litmus_test.yml percona_hostpath_verify.yml
+
+sed -i -e 's/generateName: data-persistence-litmus-/generateName: data-persistence-percona-hostpath-/g' \
+-e 's/name: data-persistence/name: percona-hostpath-cm/g' \
+-e 's/name: litmus-data-persistence/name: percona-hostpath-verify/g' \
+-e '/name: APP_NAMESPACE/{n;s/.*/            value: percona-hostpath-ns/}' \
+-e '/name: APP_LABEL/{n;s/.*/            value: '\''name=percona'\''/}' \
+-e '/name: STATUS/{n;s/.*/            value: VERIFY/}' \
+-e '/name: DATA_PERSISTENCE/{n;s/.*/            value: mysql/}' percona_hostpath_verify.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_id"'\
+' percona_hostpath_verify.yml
+
+## Insert the set of variables for percona data consistency util into configmap spec.
+sed -i '/parameters.yml: |/a \
+    dbuser: root \
+    dbpassword: k8sDem0 \
+    dbname: db_percona_hostpath
+' percona_hostpath_verify.yml
+
+cat percona_hostpath_verify.yml
+
+bash ../script/utils/litmus_job_runner label='name:percona-hostpath-verify' job=percona_hostpath_verify.yml
+cd ..
+
+bash script/utils/dump_cluster_state;
+bash script/utils/event_updater jobname:percona-hostpath $test_name jobid:"$job_id" pipeline_id:"$pipeline_id"
+
+if [ "$?" != "0" ]; then
+exit 1;
+fi
+
+##DATA-PERSISTENCE-delete
+
+run_id="percona-hostpath-delete";test_name=$(bash script/utils/generate_test_name testcase=data-persistence-check metadata=${run_id})
+echo $test_name
+
+cd litmus
+echo "Running the litmus experiment to check data-persistence for percona Application..."
+cp experiments/functional/data-persistence/run_litmus_test.yml percona_hostpath_delete.yml
+
+sed -i -e 's/generateName: data-persistence-litmus-/generateName: data-persistence-percona-hostpath-/g' \
+-e 's/name: data-persistence/name: percona-hostpath-cm/g' \
+-e 's/name: litmus-data-persistence/name: percona-hostpath-delete/g' \
+-e '/name: APP_NAMESPACE/{n;s/.*/            value: percona-hostpath-ns/}' \
+-e '/name: APP_LABEL/{n;s/.*/            value: '\''name=percona'\''/}' \
+-e '/name: STATUS/{n;s/.*/            value: DELETE/}' \
+-e '/name: DATA_PERSISTENCE/{n;s/.*/            value: mysql/}' percona_hostpath_delete.yml
+
+sed -i '/command:/i \
+          - name: RUN_ID\
+            value: '"$run_id"'\
+' percona_hostpath_delete.yml
+
+## Insert the set of variables for percona data consistency util into configmap spec.
+sed -i '/parameters.yml: |/a \
+    dbuser: root \
+    dbpassword: k8sDem0 \
+    dbname: db_percona_hostpath
+' percona_hostpath_delete.yml
+
+cat percona_hostpath_delete.yml
+
+bash ../script/utils/litmus_job_runner label='name:percona-hostpath-delete' job=percona_hostpath_delete.yml
+cd ..
+
+bash script/utils/dump_cluster_state;
+bash script/utils/event_updater jobname:percona-hostpath $test_name jobid:"$job_id" pipeline_id:"$pipeline_id"
+
+rc_val=$(echo $?)
+current_time=$(eval $time)
+
+if [ "$rc_val" != "0" ]; then
+bash script/utils/e2e-cr jobname:percona-hostpath jobphase:Completed end_time:"$current_time" jobid:"$job_id" pipelineid:"$pipeline_id" openebs_version:"$releaseTag" test_result:Fail
+exit 1;
+fi
+
+bash script/utils/e2e-cr jobname:percona-hostpath jobphase:Completed end_time:"$current_time" jobid:"$job_id" pipelineid:"$pipeline_id" openebs_version:"$releaseTag" test_result:Pass

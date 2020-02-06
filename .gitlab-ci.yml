@@ -1,33 +1,256 @@
-## TODO: Modularize the gitlab yaml to reuse templates
-
 ## Define the stages & order of execution
 
 stages:
   - CLUSTER-SETUP
-    #  - PROVIDER-INFRA-SETUP
-    #  - STATEFUL-APP-DEPLOY
-    #  - APP-FUNC-TEST
-    #  - APP-CHAOS-TEST
-    #  - APP-DEPROVISION
+  - PROVIDER-INFRA-SETUP
+  - APP-FUNC-TEST
+  - UPGRADE-OPENEBS
+  - APP-CHAOS-TEST
   - CLUSTER-CLEANUP
 
-variables: 
-#  utils_path: "/builds/openebs/e2e-gke/script/utils"
+variables:
   utils_path: "/builds/mdap/e2e-gke/script/utils"
 
 ## Setup the kubernetes cluster
 
 gke-cluster:
   image: atulabhi/kops:v9
-  stage: CLUSTER-SETUP 
+  stage: CLUSTER-SETUP
   script:
-    - chmod 775 ./script/gke      
-    - echo "PIPELINEMODE=$CI_PIPELINE_SOURCE"      
-    - ./script/gke
+    - chmod 775 ./script/1-cluster-setup/gke
+    - echo "PIPELINEMODE=$CI_PIPELINE_SOURCE"
+    - ./script/1-cluster-setup/gke
   artifacts:
     paths:
       - .kube/
 
+## Setup OpenEBS control plane
+
+openebs-gke-deploy:
+  image: atulabhi/kops:v9
+  stage: PROVIDER-INFRA-SETUP
+  dependencies:
+    - gke-cluster
+  script:
+   - chmod 775 ./script/2-infra-setup/openebs-deploy/infra-setup
+   - ./script/2-infra-setup/openebs-deploy/infra-setup
+  artifacts:
+    paths:
+      - .kube-openebs/
+
+openebs-sc-deploy:
+  image: atulabhi/kops:v9
+  stage: PROVIDER-INFRA-SETUP
+  dependencies:
+    - gke-cluster
+  script:
+   - chmod 775 ./script/2-Infra-setup/storage-policies/openebs-sc
+   - ./script/2-Infra-setup/storage-policies/openebs-sc
+  artifacts:
+    paths:
+      - .kube-openebs/
+
+cStor-striped-pool:
+  image: atulabhi/kops:v9
+  stage: PROVIDER-INFRA-SETUP
+  dependencies:
+    - gke-cluster
+  script:
+   - chmod 775 ./script/2-Infra-setup/create-striped-pool/create-striped-pool
+   - ./script/2-Infra-setup/create-striped-pool/create-striped-pool
+  artifacts:
+    paths:
+      - .kube-openebs/
+
+# ## Define job template for func jobs    
+.func_test_template:
+  image: atulabhi/kops:v9
+  stage: APP-FUNC-TEST
+  dependencies:
+    - openebs-gke-deploy
+  artifacts:
+    paths:
+     - .kube-openebs/
+
+busybox-deployment-cstor:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/busybox-deployment-cstor/busybox-deployment-cstor
+    - ./script/3-functional/busybox-deployment-cstor/busybox-deployment-cstor
+
+busybox-deployment-jiva:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/busybox-deployment-jiva/busybox-deployment-jiva
+    - ./script/3-functional/busybox-deployment-jiva/busybox-deployment-jiva
+
+percona-deployment-cstor:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/percona-deployment-cstor/percona-deployment-cstor
+    - ./script/3-functional/percona-deployment-cstor/percona-deployment-cstor
+
+percona-deployment-localpv-device:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/percona-localpv-device/percona-localpv-device
+    - ./script/3-functional/percona-localpv-device/percona-localpv-device
+
+percona-deployment-localpv-hostpath:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/percona-localpv-hostpath/percona-localpv-hostpath
+    - ./script/3-functional/percona-localpv-hostpath/percona-localpv-hostpath
+     
+percona-deployment-jiva:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/percona-deployment-jiva/percona-deployment-jiva
+    - ./script/3-functional/percona-deployment-jiva/percona-deployment-jiva
+
+busybox-cstor-clone:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/busybox-cstor-clone/busybox-cstor-clone
+    - ./script/3-functional/busybox-cstor-clone/busybox-cstor-clone
+
+busybox-cstor-snapshot:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/busybox-cstor-snapshot/busybox-cstor-snapshot
+    - ./script/3-functional/busybox-cstor-snapshot/busybox-cstor-snapshot
+
+busybox-jiva-snapshot:
+  extends: .func_test_template
+  script:
+    - chmod 775 ./script/3-functional/busybox-jiva-snapshot/busybox-jiva-snapshot
+    - ./script/3-functional/busybox-jiva-snapshot/busybox-jiva-snapshot
+
+.upgrade_openebs:
+  image: atulabhi/kops:v9
+  stage: UPGRADE-OPENEBS
+  dependencies:
+    - openebs-gke-deploy
+  artifacts:
+    paths:
+     - .kube-openebs/
+
+upgrade-control-plane:
+  extends: .upgrade_openebs
+  script:
+    - chmod 775 ./script/4-upgrade-openebs/upgrade-control-plane
+    - ./script/4-upgrade-openebs/upgrade-control-plane
+
+upgrade-cstor:
+  extends: .upgrade_openebs
+  script:
+    - chmod 775 ./script/4-upgrade-openebs/upgrade-cstor
+    - ./script/4-upgrade-openebs/upgrade-cstor
+
+upgrade-jiva:
+  extends: .upgrade_openebs
+  script:
+    - chmod 775 ./script/4-upgrade-openebs/upgrade-jiva
+    - ./script/4-upgrade-openebs/upgrade-jiva
+
+.chaos_test_template:
+  image: atulabhi/kops:v9
+  stage: APP-CHAOS-TEST
+  dependencies:
+    - openebs-gke-deploy
+  artifacts:
+    paths:
+     - .kube-openebs/
+    
+busybox-controller-kill:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/bb-controller-kill
+    - ./script/5-chaos/bb-controller-kill
+
+busybox-target-kill:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/bb-target-kill
+    - ./script/5-chaos/bb-target-kill
+
+busybox-cstor-pool-kill:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/bb-cstor-pool-kill
+    - ./script/5-chaos/bb-cstor-pool-kill
+
+busybox-cstor-pool-delete:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/bb-cstor-pool-delete
+    - ./script/5-chaos/bb-cstor-pool-delete
+
+busybox-deployment-target-network-delay:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/bb-deployment-target-nw-delay
+    - ./script/5-chaos/bb-deployment-target-nw-delay
+
+busybox-deployment-controller-network-delay:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/bb-deployment-controller-nw-delay
+    - ./script/5-chaos/bb-deployment-controller-nw-delay
+
+percona-target-network-delay:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-target-nw-delay
+    - ./script/5-chaos/percona-target-nw-delay
+
+percona-controller-network-delay:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-controller-nw-delay
+    - ./script/5-chaos/percona-controller-nw-delay
+
+percona-cstor:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-deployment-cstor
+    - ./script/5-chaos/percona-deployment-cstor
+
+percona-jiva:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-deployment-jiva
+    - ./script/5-chaos/percona-deployment-jiva
+     
+clone-busybox-cstor:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/bb-cstor-clone
+    - ./script/5-chaos/bb-cstor-clone
+
+percona-verify-data-persistence-device:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-verify-data-persistence-device
+    - ./script/5-chaos/percona-verify-data-persistence-device
+
+percona-verify-data-persistence-hostpath:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-verify-data-persistence-hostpath
+    - ./script/5-chaos/percona-verify-data-persistence-hostpath
+
+percona-deploy-localpv-device:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-deployment-device
+    - ./script/5-chaos/percona-deployment-device
+
+percona-deploy-localpv-hostpath:
+  extends: .chaos_test_template
+  script:
+    - chmod 775 ./script/5-chaos/percona-deployment-hostpath
+    - ./script/5-chaos/percona-deployment-hostpath
 
 cleanup-gke:
   when: always
@@ -35,6 +258,7 @@ cleanup-gke:
   dependencies:
     - gke-cluster
   stage: CLUSTER-CLEANUP
-  script: 
-    - chmod 755 ./script/gke-cleanup
-    - ./script/gke-cleanup
+  script:
+    - chmod 755 ./script/6-cleanup/gke-cleanup
+    - ./script/6-cleanup/gke-cleanup
+
