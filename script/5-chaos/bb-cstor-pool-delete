@@ -17,6 +17,7 @@ echo "Setting up test dependencies.."
 ${utils_path}/setup_dependencies litmus-test
 
 bash script/utils/pooling jobname:bb-cstor-pool-kill
+bash script/utils/e2e-cr jobname:bb-cstor-pool-delete jobphase:Waiting
 bash script/utils/e2e-cr jobname:bb-cstor-pool-delete jobphase:Running init_time:"$current_time" job_id:"$job_id" pipeline_id:"$pipeline_id" openebs_version:"$releaseTag"
 
 echo "*******Performing cStor Pool delete**********"
