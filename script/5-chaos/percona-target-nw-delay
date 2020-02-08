@@ -117,7 +117,6 @@ cp experiments/chaos/openebs_target_network_delay/run_litmus_test.yml run_percon
 
 sed -i -e 's/openebs-target-network-delay/percona-target-nw-delay/g' \
 -e 's/name: target-network-delay/name: percona-target-nw-delay-configmap/g' \
--e 's/value: docker/value: containerd/g' \
 -e 's/value: app-percona-ns/value: percona-cstor/g' run_percona_target_nw_delay.yml
 
 sed -i '/command:/i \
