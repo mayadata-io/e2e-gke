@@ -7,9 +7,9 @@ job_id=$CI_JOB_ID
 pipeline_id=$CI_PIPELINE_ID
 releaseTag=$RELEASE_TAG
 from_version=$FROM_VERSION
-to_version=$TO_VERSION
+to_version=$RELEASE_TAG
 upgrade_imageTag=$UPGRADE_IMAGE_TAG
-new_ndmTag=$NEW_NDM_TAG
+new_ndmTag=$NDM_TAG
 deploy_type=$DEPLOY_TYPE
 
 source ~/.profile
