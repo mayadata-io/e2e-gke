@@ -31,6 +31,7 @@ cp apps/percona/deployers/run_litmus_test.yml percona_jiva.yml
 
 sed -i -e 's/app: percona-deployment/app: percona-deploy-jiva/g' \
 -e 's/value: openebs-standard/value: openebs-jiva-default/g' \
+-e '/name: TARGET_AFFINITY_CHECK/{n;s/value: enable/value: disable/g}' \
 -e 's/value: app-percona-ns/value: percona-jiva-ns/g' percona_jiva.yml
 
 sed -i '/command:/i \
