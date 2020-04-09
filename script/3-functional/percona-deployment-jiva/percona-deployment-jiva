@@ -32,6 +32,7 @@ cp apps/percona/deployers/run_litmus_test.yml deploy_percona_jiva.yml
 
 sed -i -e 's/value: openebs-standard/value: openebs-jiva-default/g' \
 -e 's/value: app-percona-ns/value: percona-jiva/g' \
+-e 's/value: enable/value: disable/g' \
 -e 's/generateName: litmus-percona-/generateName: litmus-percona-jiva-/g' \
 -e 's/app: percona-deployment/app: percona-deployment-jiva/g' deploy_percona_jiva.yml
 
