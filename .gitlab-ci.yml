@@ -204,12 +204,6 @@ percona-target-network-delay:
     - chmod 775 ./script/5-chaos/percona-target-nw-delay
     - ./script/5-chaos/percona-target-nw-delay
 
-percona-controller-network-delay:
-  extends: .chaos_test_template
-  script:
-    - chmod 775 ./script/5-chaos/percona-controller-nw-delay
-    - ./script/5-chaos/percona-controller-nw-delay
-
 percona-cstor:
   extends: .chaos_test_template
   script:
